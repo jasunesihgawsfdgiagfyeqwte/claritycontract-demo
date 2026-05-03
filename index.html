@@ -453,14 +453,87 @@
   }
 
   /* ---------- Responsive ---------- */
+
+  /* Tablet & small laptop (≤ 900px) */
   @media (max-width: 900px) {
-    .report-grid { grid-template-columns: 1fr; }
+    main { padding: 48px 24px; }
+    .report-grid { grid-template-columns: 1fr; gap: 32px; }
     .findings-pane { position: static; }
-    .report-summary { grid-template-columns: 1fr 1fr; }
+    .report-summary { grid-template-columns: 1fr 1fr; gap: 16px; }
     .feature-row { grid-template-columns: 1fr; gap: 24px; }
-    .hero h1 { font-size: 32px; }
-    .report-header { flex-direction: column; gap: 24px; }
+    .hero h1 { font-size: 36px; }
+    .hero p { font-size: 17px; }
+    .report-header { flex-direction: column; gap: 24px; align-items: flex-start; }
     .risk-score { text-align: left; }
+    .nav-right span:not(.demo-tag) { display: none; }
+  }
+
+  /* Mobile (≤ 600px) */
+  @media (max-width: 600px) {
+    header { padding: 14px 20px; }
+    .wordmark { font-size: 16px; }
+    main { padding: 32px 20px; }
+    footer { padding: 24px 20px; margin-top: 56px; line-height: 1.5; }
+
+    /* Upload screen */
+    .hero { margin: 16px 0 32px; }
+    .hero h1 { font-size: 28px; line-height: 1.15; }
+    .hero h1 br { display: none; }
+    .hero p { font-size: 16px; }
+    .dropzone { padding: 40px 20px; }
+    .dropzone-text { font-size: 16px; }
+    .dropzone-sub { margin-bottom: 24px; }
+    .button-primary, .button-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0 0 0;
+      padding: 14px 20px;
+      text-align: center;
+    }
+    .feature-row { margin-top: 48px; padding-top: 32px; gap: 28px; }
+
+    /* Analyzing screen */
+    .analyzing-wrap { margin-top: 40px; }
+    .analyzing-wrap h2 { font-size: 22px; margin-bottom: 28px; }
+    .agent-step { padding: 14px 0; gap: 12px; }
+    .agent-step .label { font-size: 14px; }
+
+    /* Report screen */
+    .report-meta h2 { font-size: 22px; }
+    .risk-score .score-value { font-size: 44px; }
+    .report-summary { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+    .summary-cell .num { font-size: 26px; }
+    .summary-cell .lbl { font-size: 11px; }
+    .contract-text { font-size: 13.5px; }
+    .clause { padding: 10px 12px; }
+    .finding { padding: 16px; }
+    .finding h4 { font-size: 14px; }
+    .finding p { font-size: 12.5px; }
+    .detail-panel { padding: 18px; margin-top: 16px; }
+    .detail-panel h4 { font-size: 15px; }
+    .detail-panel .detail-body { font-size: 13px; }
+    .rewrite-block { font-size: 12px; padding: 12px 14px; }
+    .report-actions {
+      flex-direction: column-reverse;
+      gap: 8px;
+      margin-top: 32px;
+      padding-top: 24px;
+    }
+    .report-actions .button-primary,
+    .report-actions .button-secondary {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  /* Very small phones (≤ 380px) */
+  @media (max-width: 380px) {
+    main { padding: 24px 16px; }
+    header { padding: 12px 16px; }
+    .nav-right .demo-tag { display: none; }
+    .hero h1 { font-size: 24px; }
+    .dropzone { padding: 32px 16px; }
+    .risk-score .score-value { font-size: 36px; }
   }
 </style>
 </head>
@@ -807,6 +880,8 @@
 
   // ---------- Findings interaction ----------
   function selectFinding(id) {
+    const isMobile = window.innerWidth <= 900;
+
     // Clear previous selection
     document.querySelectorAll('.finding, .clause').forEach(el => el.classList.remove('selected'));
 
@@ -814,19 +889,30 @@
     document.querySelectorAll('.finding[data-finding="' + id + '"]').forEach(el => el.classList.add('selected'));
 
     // Highlight matching clause in contract (if exists for this finding)
-    document.querySelectorAll('.clause[data-finding="' + id + '"]').forEach(el => {
-      el.classList.add('selected');
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    const clauses = document.querySelectorAll('.clause[data-finding="' + id + '"]');
+    clauses.forEach(el => el.classList.add('selected'));
 
     // Update detail panel
     const f = findings[id];
     if (!f) return;
-    document.getElementById('detail-panel').style.display = 'block';
+    const panel = document.getElementById('detail-panel');
+    panel.style.display = 'block';
     document.getElementById('detail-title').textContent = f.title;
     document.getElementById('detail-why').textContent = f.why;
     document.getElementById('detail-rewrite').textContent = f.rewrite;
     document.getElementById('detail-source').textContent = f.source;
+
+    // Scroll behavior differs on mobile vs desktop:
+    // - Desktop: scroll the contract clause into view (sticky panel stays visible)
+    // - Mobile: scroll to the detail panel itself (below the findings list)
+    if (isMobile) {
+      // Wait for display:block to take effect, then scroll
+      requestAnimationFrame(() => {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else if (clauses.length > 0) {
+      clauses[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   function resetDemo() {
