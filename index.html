@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClarityContract — Legal-grade contract review at startup speed</title>
+<meta name="description" content="Upload a contract. Get a plain-English risk report in 90 seconds. Purpose-built AI for the small businesses that can't afford BigLaw — but can't afford to skip review." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --ink: #0A0A0A;
+    --muted: #6B6B6B;
+    --hairline: #E5E5E0;
+    --accent: #1F8A4C;
+    --warn: #B14A2C;
+    --warn-bg: #FBF1EC;
+    --med: #8A6A1F;
+    --med-bg: #FAF5E8;
+    --low-bg: #F1F1EE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', Calibri, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ---------- Header ---------- */
+  header {
+    border-bottom: 1px solid var(--hairline);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+  }
+  .wordmark {
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .wordmark .accent-mark {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    transform: translateY(-1px);
+  }
+  .nav-right {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .nav-right .demo-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--hairline);
+    padding: 4px 9px;
+    color: var(--muted);
+  }
+
+  /* ---------- Layout ---------- */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ---------- Screen 1: Upload ---------- */
+  .hero {
+    max-width: 720px;
+    margin: 32px auto 48px;
+    text-align: left;
+  }
+  .hero h1 {
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero h1 .underline {
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 2px;
+  }
+  .hero p {
+    font-size: 19px;
+    color: var(--muted);
+    line-height: 1.45;
+    max-width: 600px;
+  }
+  .dropzone {
+    max-width: 720px;
+    margin: 0 auto;
+    border: 1px dashed var(--hairline);
+    padding: 64px 32px;
+    text-align: center;
+  }
+  .dropzone .icon-stack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+    color: var(--muted);
+  }
+  .dropzone .upload-line {
+    width: 32px;
+    height: 1px;
+    background: var(--ink);
+  }
+  .dropzone .upload-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid var(--ink);
+  }
+  .dropzone-text {
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  .dropzone-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .button-primary {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 120ms ease;
+  }
+  .button-primary:hover { background: #2A2A2A; }
+  .button-secondary {
+    color: var(--ink);
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 1px solid var(--hairline);
+    margin-left: 8px;
+    transition: border-color 120ms ease;
+  }
+  .button-secondary:hover { border-color: var(--ink); }
+
+  .feature-row {
+    max-width: 720px;
+    margin: 64px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    padding-top: 40px;
+    border-top: 1px solid var(--hairline);
+  }
+  .feature-row .feature h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .feature-row .feature p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ---------- Screen 2: Analyzing ---------- */
+  .analyzing-wrap {
+    max-width: 560px;
+    margin: 80px auto 0;
+  }
+  .analyzing-wrap .filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .analyzing-wrap h2 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 40px;
+  }
+  .agent-steps {
+    list-style: none;
+  }
+  .agent-step {
+    padding: 16px 0;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--muted);
+    transition: color 200ms ease;
+  }
+  .agent-step:last-child { border-bottom: 1px solid var(--hairline); }
+  .agent-step.done, .agent-step.active { color: var(--ink); }
+  .agent-step .marker {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--hairline);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .agent-step.active .marker {
+    border-color: var(--ink);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .agent-step.done .marker {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .agent-step .label { flex: 1; font-size: 16px; font-weight: 500; }
+  .agent-step .duration { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+  @keyframes pulse {
+    0%, 100% { background: transparent; }
+    50% { background: var(--ink); }
+  }
+
+  /* ---------- Screen 3: Report ---------- */
+  .report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 40px;
+  }
+  .report-meta .filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .report-meta h2 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .report-meta .timestamp {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .risk-score {
+    text-align: right;
+  }
+  .risk-score .score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .risk-score .score-value {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--warn);
+  }
+  .risk-score .score-tag {
+    font-size: 13px;
+    color: var(--warn);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .report-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .summary-cell .num {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .summary-cell .lbl {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .summary-cell.high .num { color: var(--warn); }
+  .summary-cell.med .num { color: var(--med); }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+  }
+
+  /* Contract pane */
+  .contract-pane h3, .findings-pane h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .contract-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .contract-text h4 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 24px 0 8px;
+    color: var(--ink);
+  }
+  .contract-text h4:first-of-type { margin-top: 0; }
+  .contract-text p { margin-bottom: 12px; }
+  .clause {
+    padding: 8px 12px;
+    margin: 4px -12px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 120ms ease;
+  }
+  .clause:hover { background: #F1F1EE; }
+  .clause.high { background: var(--warn-bg); border-left-color: var(--warn); }
+  .clause.med { background: var(--med-bg); border-left-color: var(--med); }
+  .clause.selected { box-shadow: inset 0 0 0 1px var(--ink); }
+
+  /* Findings pane */
+  .findings-pane {
+    position: sticky;
+    top: 32px;
+    align-self: start;
+  }
+  .finding {
+    padding: 20px;
+    border: 1px solid var(--hairline);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 120ms ease;
+  }
+  .finding:hover { border-color: var(--ink); }
+  .finding.selected { border-color: var(--ink); border-width: 1px; }
+  .finding-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .finding-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .severity {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    padding: 3px 8px;
+  }
+  .severity.high { background: var(--warn-bg); color: var(--warn); }
+  .severity.med { background: var(--med-bg); color: var(--med); }
+  .finding h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .finding p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* Detail panel */
+  .detail-panel {
+    border: 1px solid var(--ink);
+    padding: 24px;
+    margin-top: 24px;
+  }
+  .detail-panel h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .detail-panel .detail-section { margin-bottom: 20px; }
+  .detail-panel .detail-section:last-child { margin-bottom: 0; }
+  .detail-panel .detail-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .detail-panel .detail-body { font-size: 14px; line-height: 1.55; }
+  .detail-panel .citation {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 8px;
+  }
+  .rewrite-block {
+    background: #F5F8F3;
+    border-left: 2px solid var(--accent);
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .report-actions {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 32px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 80px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .report-grid { grid-template-columns: 1fr; }
+    .findings-pane { position: static; }
+    .report-summary { grid-template-columns: 1fr 1fr; }
+    .feature-row { grid-template-columns: 1fr; gap: 24px; }
+    .hero h1 { font-size: 32px; }
+    .report-header { flex-direction: column; gap: 24px; }
+    .risk-score { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark"><span class="accent-mark"></span>ClarityContract</div>
+  <div class="nav-right">
+    <span>Pricing</span>
+    <span>Docs</span>
+    <span>Sign in</span>
+    <span class="demo-tag">Live demo</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================ -->
+  <!-- Screen 1: Upload                                             -->
+  <!-- ============================================================ -->
+  <section id="screen-upload" class="screen active">
+    <div class="hero">
+      <h1>Legal-grade contract review<br />at <span class="underline">startup speed</span>.</h1>
+      <p>Upload any contract. Get a plain-English risk report in 90 seconds. Built for the 600,000 U.S. companies that can't afford BigLaw — but can't afford to skip review.</p>
+    </div>
+
+    <div class="dropzone">
+      <div class="icon-stack">
+        <div class="upload-arrow"></div>
+        <div class="upload-line"></div>
+      </div>
+      <div class="dropzone-text">Drop a contract here to review</div>
+      <div class="dropzone-sub">PDF, DOCX, or TXT — up to 50 pages</div>
+      <button class="button-primary" onclick="startAnalysis()">Try a sample NDA</button>
+      <button class="button-secondary" onclick="alert('In the live product, you would upload your own contract here. For this demo, please use the sample NDA.')">Upload your own</button>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature">
+        <h3>Specialist, not generalist</h3>
+        <p>Trained on real legal sources, not just internet text. Cites every flag back to a source you can verify.</p>
+      </div>
+      <div class="feature">
+        <h3>Knows your company</h3>
+        <p>Learns your historical risk tolerance and contract style. Compares each new agreement to your past ones.</p>
+      </div>
+      <div class="feature">
+        <h3>Built for trust</h3>
+        <p>SOC 2 Type II. Per-tenant isolation. Zero-retention enterprise tier. Your contracts never train models for other customers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Screen 2: Analyzing                                          -->
+  <!-- ============================================================ -->
+  <section id="screen-analyzing" class="screen">
+    <div class="analyzing-wrap">
+      <div class="filename">vendor_nda_acmecorp_v3.pdf</div>
+      <h2>Analyzing contract<span id="dots">…</span></h2>
+
+      <ul class="agent-steps">
+        <li class="agent-step" id="step-1">
+          <div class="marker"></div>
+          <div class="label">Extracting clauses</div>
+          <div class="duration">—</div>
+        </li>
+        <li class="agent-step" id="step-2">
+          <div class="marker"></div>
+          <div class="label">Benchmarking against industry standards</div>
+          <div class="duration">—</div>
+        </li>
+        <li class="agent-step" id="step-3">
+          <div class="marker"></div>
+          <div class="label">Scoring risk per clause and overall</div>
+          <div class="duration">—</div>
+        </li>
+        <li class="agent-step" id="step-4">
+          <div class="marker"></div>
+          <div class="label">Drafting suggested rewrites</div>
+          <div class="duration">—</div>
+        </li>
+        <li class="agent-step" id="step-5">
+          <div class="marker"></div>
+          <div class="label">Generating report</div>
+          <div class="duration">—</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Screen 3: Report                                             -->
+  <!-- ============================================================ -->
+  <section id="screen-report" class="screen">
+    <div class="report-header">
+      <div class="report-meta">
+        <div class="filename">vendor_nda_acmecorp_v3.pdf · 4 pages · NDA</div>
+        <h2>Risk Review</h2>
+        <div class="timestamp">Analyzed in 87 seconds · 4 findings · 1 missing clause</div>
+      </div>
+      <div class="risk-score">
+        <div class="score-label">Overall risk</div>
+        <div class="score-value">72</div>
+        <div class="score-tag">High — review before signing</div>
+      </div>
+    </div>
+
+    <div class="report-summary">
+      <div class="summary-cell high">
+        <div class="num">2</div>
+        <div class="lbl">High-risk clauses</div>
+      </div>
+      <div class="summary-cell med">
+        <div class="num">2</div>
+        <div class="lbl">Medium-risk clauses</div>
+      </div>
+      <div class="summary-cell">
+        <div class="num">1</div>
+        <div class="lbl">Missing protection</div>
+      </div>
+      <div class="summary-cell">
+        <div class="num">12</div>
+        <div class="lbl">Clauses reviewed</div>
+      </div>
+    </div>
+
+    <div class="report-grid">
+
+      <!-- LEFT: contract text -->
+      <div class="contract-pane">
+        <h3>Contract</h3>
+        <div class="contract-text">
+
+          <h4>Mutual Non-Disclosure Agreement</h4>
+          <p>This Mutual Non-Disclosure Agreement ("Agreement") is entered into as of April 14, 2026, by and between AcmeCorp, Inc., a Delaware corporation ("Disclosing Party"), and the Recipient identified in the signature block below.</p>
+
+          <h4>1. Confidential Information</h4>
+          <p>"Confidential Information" means any information disclosed by either party to the other, whether orally, in writing, or in any other form, including without limitation business plans, financial information, customer data, technical specifications, and product roadmaps.</p>
+
+          <h4>2. Obligations</h4>
+          <p>Each party agrees to (a) hold the other party's Confidential Information in strict confidence, (b) not disclose such Confidential Information to any third party without prior written consent, and (c) use such Confidential Information only for the purpose of evaluating a potential business relationship.</p>
+
+          <h4>3. Exceptions</h4>
+          <p>The obligations of confidentiality shall not apply to information that is publicly known, was rightfully in the receiving party's possession prior to disclosure, or is independently developed without use of the Confidential Information.</p>
+
+          <h4>4. Indemnification</h4>
+          <div class="clause high" data-finding="1" onclick="selectFinding(1)">
+            <p>Recipient shall <strong>indemnify, defend, and hold harmless</strong> Disclosing Party, its officers, directors, employees, agents, affiliates, and successors from <strong>any and all claims, damages, losses, liabilities, costs, and expenses (including attorneys' fees) of any kind</strong> arising out of or related to Recipient's breach of this Agreement <strong>or any disclosure of Confidential Information</strong>, regardless of the cause.</p>
+          </div>
+
+          <h4>5. Return of Materials</h4>
+          <p>Upon termination of discussions, the receiving party shall promptly return or destroy all Confidential Information at the disclosing party's option.</p>
+
+          <h4>6. Term</h4>
+          <div class="clause high" data-finding="2" onclick="selectFinding(2)">
+            <p>This Agreement shall continue <strong>in perpetuity</strong> unless terminated in writing by both parties.</p>
+          </div>
+
+          <h4>7. Governing Law</h4>
+          <div class="clause med" data-finding="3" onclick="selectFinding(3)">
+            <p>This Agreement shall be governed by and construed in accordance with the laws of the <strong>Cayman Islands</strong>, without regard to its conflict of laws principles.</p>
+          </div>
+
+          <h4>8. Assignment</h4>
+          <div class="clause med" data-finding="4" onclick="selectFinding(4)">
+            <p><strong>Either party may assign this Agreement</strong>, in whole or in part, to any third party at its discretion.</p>
+          </div>
+
+          <h4>9. Entire Agreement</h4>
+          <p>This Agreement constitutes the entire understanding between the parties with respect to the subject matter hereof and supersedes all prior agreements and understandings, whether oral or written.</p>
+
+          <p style="color: var(--muted); font-size: 13px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline);">— end of contract —</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: findings panel -->
+      <div class="findings-pane">
+        <h3>Findings</h3>
+
+        <div class="finding" data-finding="1" onclick="selectFinding(1)">
+          <div class="finding-head">
+            <span class="finding-num">01 · Clause 4</span>
+            <span class="severity high">High</span>
+          </div>
+          <h4>Unlimited indemnification</h4>
+          <p>Recipient assumes uncapped liability for any disclosure, regardless of cause. No mutuality, no cap, no carve-outs.</p>
+        </div>
+
+        <div class="finding" data-finding="2" onclick="selectFinding(2)">
+          <div class="finding-head">
+            <span class="finding-num">02 · Clause 6</span>
+            <span class="severity high">High</span>
+          </div>
+          <h4>Perpetual term</h4>
+          <p>Confidentiality obligations never expire. Industry standard is 2–5 years for non-trade-secret information.</p>
+        </div>
+
+        <div class="finding" data-finding="3" onclick="selectFinding(3)">
+          <div class="finding-head">
+            <span class="finding-num">03 · Clause 7</span>
+            <span class="severity med">Medium</span>
+          </div>
+          <h4>Unusual governing law</h4>
+          <p>Cayman Islands law selected for a U.S. business relationship. Significantly increases dispute cost and complexity.</p>
+        </div>
+
+        <div class="finding" data-finding="4" onclick="selectFinding(4)">
+          <div class="finding-head">
+            <span class="finding-num">04 · Clause 8</span>
+            <span class="severity med">Medium</span>
+          </div>
+          <h4>Free assignment without consent</h4>
+          <p>Counterparty can transfer the agreement to any third party — including competitors — without your approval.</p>
+        </div>
+
+        <div class="finding" data-finding="5" onclick="selectFinding(5)">
+          <div class="finding-head">
+            <span class="finding-num">05 · Missing</span>
+            <span class="severity high">High</span>
+          </div>
+          <h4>No limitation of liability</h4>
+          <p>Standard NDAs cap damages. This one is silent — leaving Recipient exposed to the full indemnification in Clause 4.</p>
+        </div>
+
+        <div class="detail-panel" id="detail-panel" style="display: none;">
+          <h4 id="detail-title">—</h4>
+
+          <div class="detail-section">
+            <div class="detail-label">Why this is risky</div>
+            <div class="detail-body" id="detail-why">—</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">Suggested rewrite</div>
+            <div class="rewrite-block" id="detail-rewrite">—</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">Source</div>
+            <div class="citation" id="detail-source">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-actions">
+      <button class="button-secondary" onclick="resetDemo()">Review another contract</button>
+      <button class="button-primary" onclick="alert('In the live product, you would download a PDF report or push the redline to your contract management workflow.')">Download PDF report</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  ClarityContract — USC Marshall, BAEP 474 (Spring 2026) · Demo only — no real contract data is processed
+</footer>
+
+<script>
+  // ---------- Findings data ----------
+  const findings = {
+    1: {
+      title: 'Unlimited indemnification (Clause 4)',
+      why: 'Recipient agrees to cover "any and all" claims, costs, and attorneys\' fees with no cap, no time limit, and no exception for the Discloser\'s own negligence. Standard mutual NDAs either remove indemnification entirely or cap it at a multiple of fees paid. As written, signing this exposes Recipient to unbounded liability for events outside their control.',
+      rewrite: 'Each party shall be responsible for its own breach of this Agreement. Neither party shall indemnify the other for any indirect, incidental, or consequential damages. Direct damages, if any, shall be capped at the greater of (a) $50,000 or (b) fees paid under any related agreement in the prior 12 months.',
+      source: 'Compared against 1,247 mutual NDAs in the U.S. tech and SaaS verticals. 94% include a liability cap; 78% remove unilateral indemnification entirely.'
+    },
+    2: {
+      title: 'Perpetual term (Clause 6)',
+      why: 'Confidentiality obligations that "continue in perpetuity" are functionally unenforceable in many U.S. jurisdictions for non-trade-secret information, but they create real exposure during the period a court would enforce them. They also conflict with most insurance policy duration limits.',
+      rewrite: 'The confidentiality obligations under this Agreement shall continue for a period of three (3) years from the date of disclosure, except with respect to information that constitutes a trade secret under applicable law, which shall remain confidential for so long as such information retains trade secret status.',
+      source: 'Industry benchmark (NDA Standard, 2024): 3 years for general business information, indefinite only for clearly-marked trade secrets.'
+    },
+    3: {
+      title: 'Cayman Islands governing law (Clause 7)',
+      why: 'For a U.S.-to-U.S. business relationship, selecting Cayman Islands law materially increases the cost of any dispute (foreign counsel required), complicates enforcement (limited reciprocity for judgment recognition), and provides no obvious benefit to either party. This is often a holdover from a template originally drafted for offshore structures.',
+      rewrite: 'This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of laws principles. Any disputes shall be resolved in the state or federal courts located in Wilmington, Delaware.',
+      source: 'AcmeCorp is incorporated in Delaware (per recital). Delaware law is the standard default for both parties\' counsel and provides predictable case law.'
+    },
+    4: {
+      title: 'Free assignment without consent (Clause 8)',
+      why: 'As written, the Discloser can assign the entire agreement — including your obligation to keep their information confidential — to any third party at any time. That third party could be a competitor, an acquirer with conflicting interests, or a litigation funder. Your obligations would transfer; your relationship would not.',
+      rewrite: 'Neither party may assign this Agreement, in whole or in part, without the prior written consent of the other party, except that either party may assign this Agreement without consent in connection with a merger, acquisition, or sale of all or substantially all of its assets.',
+      source: 'Standard mutual assignment clause from the ABA Model Confidentiality Agreement (revised 2023).'
+    },
+    5: {
+      title: 'Missing limitation of liability',
+      why: 'The contract contains no cap on damages. Combined with the unlimited indemnification in Clause 4, this means a single inadvertent disclosure could result in liability far exceeding the value of the underlying business relationship. Almost every commercial contract — even very short ones — should include a basic limitation of liability.',
+      rewrite: 'IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO THIS AGREEMENT, REGARDLESS OF THE THEORY OF LIABILITY. EACH PARTY\'S TOTAL CUMULATIVE LIABILITY UNDER THIS AGREEMENT SHALL NOT EXCEED $50,000.',
+      source: 'Limitation of liability is present in 96% of mutual NDAs reviewed in the U.S. SaaS vertical (n=1,247). Median cap: $50,000-$100,000 for relationships under $1M annual contract value.'
+    }
+  };
+
+  // ---------- Screen transitions ----------
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function startAnalysis() {
+    showScreen('analyzing');
+    runAgentSteps();
+  }
+
+  // ---------- Animated agent pipeline ----------
+  function runAgentSteps() {
+    // Reset
+    for (let i = 1; i <= 5; i++) {
+      const step = document.getElementById('step-' + i);
+      step.classList.remove('active', 'done');
+      step.querySelector('.duration').textContent = '—';
+    }
+
+    const durations = [
+      { i: 1, ms: 800, dur: '0.8s' },
+      { i: 2, ms: 1400, dur: '1.4s' },
+      { i: 3, ms: 1100, dur: '1.1s' },
+      { i: 4, ms: 1300, dur: '1.3s' },
+      { i: 5, ms: 600, dur: '0.6s' }
+    ];
+
+    let cumulative = 0;
+    durations.forEach((step, idx) => {
+      // Activate
+      setTimeout(() => {
+        document.getElementById('step-' + step.i).classList.add('active');
+      }, cumulative);
+      // Complete
+      setTimeout(() => {
+        const el = document.getElementById('step-' + step.i);
+        el.classList.remove('active');
+        el.classList.add('done');
+        el.querySelector('.duration').textContent = step.dur;
+      }, cumulative + step.ms);
+      cumulative += step.ms;
+    });
+
+    // Show report after all steps done
+    setTimeout(() => {
+      showScreen('report');
+    }, cumulative + 400);
+  }
+
+  // ---------- Findings interaction ----------
+  function selectFinding(id) {
+    // Clear previous selection
+    document.querySelectorAll('.finding, .clause').forEach(el => el.classList.remove('selected'));
+
+    // Highlight selected finding card
+    document.querySelectorAll('.finding[data-finding="' + id + '"]').forEach(el => el.classList.add('selected'));
+
+    // Highlight matching clause in contract (if exists for this finding)
+    document.querySelectorAll('.clause[data-finding="' + id + '"]').forEach(el => {
+      el.classList.add('selected');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // Update detail panel
+    const f = findings[id];
+    if (!f) return;
+    document.getElementById('detail-panel').style.display = 'block';
+    document.getElementById('detail-title').textContent = f.title;
+    document.getElementById('detail-why').textContent = f.why;
+    document.getElementById('detail-rewrite').textContent = f.rewrite;
+    document.getElementById('detail-source').textContent = f.source;
+  }
+
+  function resetDemo() {
+    document.getElementById('detail-panel').style.display = 'none';
+    document.querySelectorAll('.finding, .clause').forEach(el => el.classList.remove('selected'));
+    showScreen('upload');
+  }
+
+  // ---------- Loading dots animation ----------
+  let dotState = 0;
+  setInterval(() => {
+    const dotsEl = document.getElementById('dots');
+    if (!dotsEl) return;
+    dotState = (dotState + 1) % 4;
+    dotsEl.textContent = '.'.repeat(dotState);
+  }, 400);
+</script>
+
+</body>
+</html>
